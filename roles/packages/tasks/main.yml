@@ -1,0 +1,27 @@
+---
+- vars:
+    packages:
+      - my_package_1
+      - my_package_2
+  name: Check if packages are installed
+  yum:
+    list: "{{ package }}"
+  with_items: "{{ packages }}"
+  become: true
+  register: package_status
+  failed_when: not package_check_result|success
+  
+- name: Install packages
+  yum:
+    name: "{{ package }}"
+    state: present
+  become: true
+  when: "'{{ package }}' not in package_check_result.results | map(attribute='packages') | map(attribute='name') | list" 
+  with_items: "{{ packages }}"
+  ignore_errors: yes
+  register: result
+
+- name: Return error
+  fail:
+    msg: "Failed to install packages on host."
+  when: result|failed

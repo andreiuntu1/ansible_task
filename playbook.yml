@@ -1,0 +1,7 @@
+---
+- name: Install packages on my_group hosts
+  hosts: my_group
+  become: true
+
+  roles:
+    - role: packages
